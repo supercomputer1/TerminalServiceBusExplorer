@@ -16,6 +16,32 @@
 # Mono auto generated files
 mono_crash.*
 
+# Logs 
+[Ll]og.txt 
+[Ll]og*.txt
+[Ll]og-*.txt
+[Ll]og_*.txt
+*.[Ll]og
+*.[Ll]og.*
+
+# Appsettings 
+[Aa]pp[Ss]ettings.json 
+[Aa]pp[Ss]ettings.*.json 
+
+# Testsettings
+[Tt]est[Ss]ettings.json 
+
+# App config 
+[Aa]pp.[Cc]onfig
+
+# Tags
+[Tt]ags
+
+# Vim temp files
+*.swp 
+*.tmp
+
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

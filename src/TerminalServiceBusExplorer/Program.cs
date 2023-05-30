@@ -7,13 +7,13 @@ using TerminalServiceBusExplorer.ServiceBus;
 
 var builder = Host.CreateDefaultBuilder(args);
 
-builder.ConfigureServices(services =>
+builder.ConfigureServices((hostContext, services) =>
 {
 
 
     services.AddSingleton((s) =>
     {
-        return new ServiceBusClient("");
+        return new ServiceBusClient(hostContext.Configuration["AppSettings:ServiceBus:ConnectionString"]);
     });
 
     // This is a ServiceBusClient with administrator privileges. 
@@ -21,7 +21,7 @@ builder.ConfigureServices(services =>
     // but it can list all available topics/queues/subscriptions.
     services.AddSingleton((s) =>
     {
-        return new ServiceBusAdministrationClient("");
+        return new ServiceBusAdministrationClient(hostContext.Configuration["AppSettings:ServiceBus:ConnectionString"]);
     });
 
     services.AddSingleton<ServiceBusTest>();

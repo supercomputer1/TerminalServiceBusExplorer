@@ -15,30 +15,32 @@ namespace TerminalServiceBusExplorer.ServiceBus
             this.serviceBusAdministrationClient = serviceBusAdministrationClient;
         }
 
-        public async Task<List<string>> GetTopics(CancellationToken cancellationToken = default)
+        public async Task<Dictionary<int, string>> GetTopics(CancellationToken cancellationToken = default)
         {
-            var topics =  serviceBusAdministrationClient.GetTopicsAsync(cancellationToken);
+            var topics = serviceBusAdministrationClient.GetTopicsAsync(cancellationToken);
 
-            var topicNames = new List<string>(); 
+            var topicNames = new List<string>();
             await foreach (var topic in topics)
             {
-                topicNames.Add(topic.Name); 
+                topicNames.Add(topic.Name);
             }
 
-            return topicNames; 
+            int index = 0;
+            return topicNames.ToDictionary(k => index++, v => v);
         }
 
-        public async Task<List<string>> GetSubscriptions(string topicName, CancellationToken cancellationToken = default)
+        public async Task<Dictionary<int, string>> GetSubscriptions(string topicName, CancellationToken cancellationToken = default)
         {
-            var subscriptions =  serviceBusAdministrationClient.GetSubscriptionsAsync(topicName, cancellationToken);
+            var subscriptions = serviceBusAdministrationClient.GetSubscriptionsAsync(topicName, cancellationToken);
 
-            var subscriptionNames = new List<string>(); 
+            var subscriptionNames = new List<string>();
             await foreach (var subscription in subscriptions)
             {
-                subscriptionNames.Add(subscription.SubscriptionName); 
+                subscriptionNames.Add(subscription.SubscriptionName);
             }
 
-            return subscriptionNames; 
+            int index = 0;
+            return subscriptionNames.ToDictionary(k => index++, v => v);
         }
     }
 }
