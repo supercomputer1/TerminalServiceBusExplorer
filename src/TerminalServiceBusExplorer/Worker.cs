@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using TerminalServiceBusExplorer.Compression;
 using TerminalServiceBusExplorer.Extensions;
-using TerminalServiceBusExplorer.Extensions.cs;
 using TerminalServiceBusExplorer.ServiceBus;
 using TerminalServiceBusExplorer.Terminal;
 

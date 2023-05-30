@@ -1,4 +1,4 @@
-namespace TerminalServiceBusExplorer.Extensions.cs;
+namespace TerminalServiceBusExplorer.Extensions;
 
 public static class DictionaryExtensions
 {
