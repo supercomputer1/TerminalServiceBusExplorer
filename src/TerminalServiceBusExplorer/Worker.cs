@@ -16,44 +16,39 @@ namespace TerminalServiceBusExplorer
     public sealed class Worker : BackgroundService
     {
         private readonly IHostApplicationLifetime hostApplicationLifetime;
-        private readonly ServiceBusTestWithAdministratorRights serviceBusTestWithAdministratorRights;
-        private readonly ServiceBusTest serviceBusTest;
-        public Worker(IHostApplicationLifetime hostApplicationLifeTime, ServiceBusTestWithAdministratorRights serviceBusTestWithAdministratorRights, ServiceBusTest serviceBusTest)
+        private readonly MessageBusService messageBusService;
+        public Worker(IHostApplicationLifetime hostApplicationLifeTime, MessageBusService messageBusService)
         {
             this.hostApplicationLifetime = hostApplicationLifeTime;
-            this.serviceBusTestWithAdministratorRights = serviceBusTestWithAdministratorRights;
-            this.serviceBusTest = serviceBusTest;
+            this.messageBusService = messageBusService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            /*
             var topics = await serviceBusTestWithAdministratorRights.GetTopics(stoppingToken);
             topics.Print();
             var topicChoice = Terminal.Input.GetChoice("Enter topic:");
 
 
             var subscriptions = await serviceBusTestWithAdministratorRights.GetSubscriptions(topics[topicChoice], stoppingToken);
-            subscriptions.Print();
             var subscriptionChoice = Terminal.Input.GetChoice("Enter subscription:");
 
-
-
             // TODO: Get params from user input
-            var messages = await serviceBusTest.Peek(topics[topicChoice], subscriptions[subscriptionChoice], 0, 20, stoppingToken);
+            var messages = await serviceBusTest.Peek(topics[topicChoice], subscriptions[subscriptionChoice], startIndex: 20, batchSize: 100, stoppingToken);
+            */
 
-            Console.WriteLine($"Messages in subscription: {messages.Count()}.");
+            var messageBus = await messageBusService.GetMessageBus();
+
+            messageBus.PrintTopic(1);
 
 
-            foreach (var msg in messages)
+            var messageQueue = new MessageQueue(messageBus.Topics[1].Subscriptions[22].Messages);
+
+            while (messageQueue.HasMessagesToShow)
             {
                 if (!Terminal.Input.Continue("Continue? y/n")) break;
-
-                var encoding = msg.ApplicationProperties.GetValue<string>("X-Content-Encoding");
-
-                var body = Encoding.Encoder.Decode(msg.Body.ToArray(), encoding);
-
-                new Message(msg.MessageId, body, msg.ContentType, encoding, msg.EnqueuedTime);
-                Console.WriteLine(body);
+                messageQueue.ShowFirst();
             }
 
             hostApplicationLifetime.StopApplication();

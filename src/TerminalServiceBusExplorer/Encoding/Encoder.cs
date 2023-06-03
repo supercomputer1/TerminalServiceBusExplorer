@@ -4,9 +4,10 @@ namespace TerminalServiceBusExplorer.Encoding;
 
 public static class Encoder
 {
+    private const string gzipEncoding = "gzip";
     public static string Decode(byte[] bytes, string encoding)
     {
-        if (encoding == "gzip")
+        if (encoding == gzipEncoding)
         {
             bytes = Gzip.Decompress(bytes);
         }

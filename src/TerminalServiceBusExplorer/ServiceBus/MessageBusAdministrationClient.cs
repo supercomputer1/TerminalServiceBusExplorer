@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,15 +7,15 @@ using Azure.Messaging.ServiceBus.Administration;
 
 namespace TerminalServiceBusExplorer.ServiceBus
 {
-    public class ServiceBusTestWithAdministratorRights
+    public class MessageBusAdministrationClient
     {
         private readonly ServiceBusAdministrationClient serviceBusAdministrationClient;
-        public ServiceBusTestWithAdministratorRights(ServiceBusAdministrationClient serviceBusAdministrationClient)
+        public MessageBusAdministrationClient(ServiceBusAdministrationClient serviceBusAdministrationClient)
         {
             this.serviceBusAdministrationClient = serviceBusAdministrationClient;
         }
 
-        public async Task<Dictionary<int, string>> GetTopics(CancellationToken cancellationToken = default)
+        public async Task<List<Topic>> GetTopics(CancellationToken cancellationToken = default)
         {
             var topics = serviceBusAdministrationClient.GetTopicsAsync(cancellationToken);
 
@@ -25,11 +25,10 @@ namespace TerminalServiceBusExplorer.ServiceBus
                 topicNames.Add(topic.Name);
             }
 
-            int index = 0;
-            return topicNames.ToDictionary(k => index++, v => v);
+            return topicNames.Select((s, index) => new Topic(index, s)).ToList();
         }
 
-        public async Task<Dictionary<int, string>> GetSubscriptions(string topicName, CancellationToken cancellationToken = default)
+        public async Task<List<Subscription>> GetSubscriptions(string topicName, CancellationToken cancellationToken = default)
         {
             var subscriptions = serviceBusAdministrationClient.GetSubscriptionsAsync(topicName, cancellationToken);
 
@@ -39,8 +38,7 @@ namespace TerminalServiceBusExplorer.ServiceBus
                 subscriptionNames.Add(subscription.SubscriptionName);
             }
 
-            int index = 0;
-            return subscriptionNames.ToDictionary(k => index++, v => v);
+            return subscriptionNames.Select((s, index) => new Subscription(index, s)).ToList();
         }
     }
 }
