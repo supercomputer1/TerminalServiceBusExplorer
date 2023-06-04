@@ -6,7 +6,7 @@ public static class DictionaryExtensions
     {
         foreach (var keyValuePair in input)
         {
-            Console.WriteLine($"Key: {keyValuePair.Key} | Name: {keyValuePair.Value}");
+            Console.WriteLine($"Key: {keyValuePair.Key}, Name: {keyValuePair.Value}");
         }
     }
 }

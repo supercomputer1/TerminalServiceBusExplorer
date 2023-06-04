@@ -16,44 +16,39 @@ namespace TerminalServiceBusExplorer
     public sealed class Worker : BackgroundService
     {
         private readonly IHostApplicationLifetime hostApplicationLifetime;
-        private readonly ServiceBusTestWithAdministratorRights serviceBusTestWithAdministratorRights;
-        private readonly ServiceBusTest serviceBusTest;
-        public Worker(IHostApplicationLifetime hostApplicationLifeTime, ServiceBusTestWithAdministratorRights serviceBusTestWithAdministratorRights, ServiceBusTest serviceBusTest)
+        private readonly MessageBusService messageBusService;
+        public Worker(IHostApplicationLifetime hostApplicationLifetime, MessageBusService messageBusService)
         {
-            this.hostApplicationLifetime = hostApplicationLifeTime;
-            this.serviceBusTestWithAdministratorRights = serviceBusTestWithAdministratorRights;
-            this.serviceBusTest = serviceBusTest;
+            this.hostApplicationLifetime = hostApplicationLifetime;
+            this.messageBusService = messageBusService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var topics = await serviceBusTestWithAdministratorRights.GetTopics(stoppingToken);
-            topics.Print();
-            var topicChoice = Terminal.Input.GetChoice("Enter topic:");
+            var messageBus = await messageBusService.GetMessageBus();
 
-
-            var subscriptions = await serviceBusTestWithAdministratorRights.GetSubscriptions(topics[topicChoice], stoppingToken);
-            subscriptions.Print();
-            var subscriptionChoice = Terminal.Input.GetChoice("Enter subscription:");
-
-
-
-            // TODO: Get params from user input
-            var messages = await serviceBusTest.Peek(topics[topicChoice], subscriptions[subscriptionChoice], 0, 20, stoppingToken);
-
-            Console.WriteLine($"Messages in subscription: {messages.Count()}.");
-
-
-            foreach (var msg in messages)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                if (!Terminal.Input.Continue("Continue? y/n")) break;
+                messageBus.ShowTopics();
 
-                var encoding = msg.ApplicationProperties.GetValue<string>("X-Content-Encoding");
+                var whichTopic = Terminal.Input.GetChoice("Select a topic:");
+                var topic = messageBus.GetTopic(whichTopic);
 
-                var body = Encoding.Encoder.Decode(msg.Body.ToArray(), encoding);
+                messageBus.PrintTopic(whichTopic);
 
-                new Message(msg.MessageId, body, msg.ContentType, encoding, msg.EnqueuedTime);
-                Console.WriteLine(body);
+                var whichSubscription = Terminal.Input.GetChoice("Select a subscription:");
+
+                var messageQueue = new MessageQueue(topic.Subscriptions[whichSubscription].Messages);
+
+                while (messageQueue.HasMessagesToShow)
+                {
+                    if (!Terminal.Input.Continue("Continue? y/n")) break;
+                    messageQueue.ShowFirst();
+                }
+
+                // TODO: Read user input to determine if the loop should
+                // be exited.
+                Console.WriteLine("Would like to view another subscription?");
             }
 
             hostApplicationLifetime.StopApplication();

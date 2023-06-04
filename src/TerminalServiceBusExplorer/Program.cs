@@ -24,8 +24,9 @@ builder.ConfigureServices((hostContext, services) =>
         return new ServiceBusAdministrationClient(hostContext.Configuration["AppSettings:ServiceBus:ConnectionString"]);
     });
 
-    services.AddSingleton<ServiceBusTest>();
-    services.AddSingleton<ServiceBusTestWithAdministratorRights>();
+    services.AddSingleton<MessageBusClient>();
+    services.AddSingleton<MessageBusAdministrationClient>();
+    services.AddSingleton<MessageBusService>();
     services.AddHostedService<Worker>();
 });
 
