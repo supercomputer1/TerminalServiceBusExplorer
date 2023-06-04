@@ -17,38 +17,38 @@ namespace TerminalServiceBusExplorer
     {
         private readonly IHostApplicationLifetime hostApplicationLifetime;
         private readonly MessageBusService messageBusService;
-        public Worker(IHostApplicationLifetime hostApplicationLifeTime, MessageBusService messageBusService)
+        public Worker(IHostApplicationLifetime hostApplicationLifetime, MessageBusService messageBusService)
         {
-            this.hostApplicationLifetime = hostApplicationLifeTime;
+            this.hostApplicationLifetime = hostApplicationLifetime;
             this.messageBusService = messageBusService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            /*
-            var topics = await serviceBusTestWithAdministratorRights.GetTopics(stoppingToken);
-            topics.Print();
-            var topicChoice = Terminal.Input.GetChoice("Enter topic:");
-
-
-            var subscriptions = await serviceBusTestWithAdministratorRights.GetSubscriptions(topics[topicChoice], stoppingToken);
-            var subscriptionChoice = Terminal.Input.GetChoice("Enter subscription:");
-
-            // TODO: Get params from user input
-            var messages = await serviceBusTest.Peek(topics[topicChoice], subscriptions[subscriptionChoice], startIndex: 20, batchSize: 100, stoppingToken);
-            */
-
             var messageBus = await messageBusService.GetMessageBus();
 
-            messageBus.PrintTopic(1);
-
-
-            var messageQueue = new MessageQueue(messageBus.Topics[1].Subscriptions[22].Messages);
-
-            while (messageQueue.HasMessagesToShow)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                if (!Terminal.Input.Continue("Continue? y/n")) break;
-                messageQueue.ShowFirst();
+                messageBus.ShowTopics();
+
+                var whichTopic = Terminal.Input.GetChoice("Select a topic:");
+                var topic = messageBus.GetTopic(whichTopic);
+
+                messageBus.PrintTopic(whichTopic);
+
+                var whichSubscription = Terminal.Input.GetChoice("Select a subscription:");
+
+                var messageQueue = new MessageQueue(topic.Subscriptions[whichSubscription].Messages);
+
+                while (messageQueue.HasMessagesToShow)
+                {
+                    if (!Terminal.Input.Continue("Continue? y/n")) break;
+                    messageQueue.ShowFirst();
+                }
+
+                // TODO: Read user input to determine if the loop should
+                // be exited.
+                Console.WriteLine("Would like to view another subscription?");
             }
 
             hostApplicationLifetime.StopApplication();

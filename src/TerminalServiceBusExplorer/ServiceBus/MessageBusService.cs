@@ -14,7 +14,7 @@ public class MessageBusService
 
     public async Task<MessageBus> GetMessageBus(CancellationToken cancellationToken = default)
     {
-        var topics = await GetTopics(cancellationToken);
+        var topics = await messageBusAdministrationClient.GetTopics(cancellationToken);
 
         foreach (var topic in topics)
         {
@@ -22,11 +22,6 @@ public class MessageBusService
         }
 
         return new MessageBus(topics);
-    }
-
-    private async Task<List<Topic>> GetTopics(CancellationToken cancellationToken)
-    {
-        return await messageBusAdministrationClient.GetTopics(cancellationToken);
     }
 
     private async Task<List<Subscription>> GetSubscriptions(string topic, CancellationToken cancellationToken = default)
