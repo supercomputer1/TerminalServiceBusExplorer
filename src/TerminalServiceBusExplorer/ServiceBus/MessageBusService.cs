@@ -1,4 +1,3 @@
-using TerminalServiceBusExplorer.Terminal;
 
 namespace TerminalServiceBusExplorer.ServiceBus;
 
@@ -14,24 +13,35 @@ public class MessageBusService
 
     public async Task<MessageBus> GetMessageBus(CancellationToken cancellationToken = default)
     {
-        var topics = await messageBusAdministrationClient.GetTopics(cancellationToken);
+        var messageBus = new MessageBus();
+        await GetTopics(messageBus, cancellationToken);
+        await GetSubscriptions(messageBus, cancellationToken);
+        await GetMessages(messageBus, cancellationToken);
 
-        foreach (var topic in topics)
-        {
-            topic.AddSubscriptions(await GetSubscriptions(topic.Name, cancellationToken));
-        }
-
-        return new MessageBus(topics);
+        return messageBus;
     }
 
-    private async Task<List<Subscription>> GetSubscriptions(string topic, CancellationToken cancellationToken = default)
+    private async Task GetTopics(MessageBus messageBus, CancellationToken cancellationToken = default)
     {
-        var subscriptions = await messageBusAdministrationClient.GetSubscriptions(topic);
-        foreach (var sub in subscriptions)
-        {
-            sub.AddMessages(await messageBusClient.Peek(topic, sub.Name, 0, 20, cancellationToken));
-        }
+        messageBus.Topics = await messageBusAdministrationClient.GetTopics(cancellationToken);
+    }
 
-        return subscriptions;
+    private async Task GetSubscriptions(MessageBus messageBus, CancellationToken cancellationToken = default)
+    {
+        foreach (var topic in messageBus.Topics)
+        {
+            topic.Subscriptions = await messageBusAdministrationClient.GetSubscriptions(topic.Name, cancellationToken);
+        }
+    }
+
+    private async Task GetMessages(MessageBus messageBus, CancellationToken cancellationToken = default)
+    {
+        foreach (var topic in messageBus.Topics)
+        {
+            foreach (var subscription in topic.Subscriptions)
+            {
+                subscription.AddMessages(await messageBusClient.Peek(topic.Name, subscription.Name, 0, 100, cancellationToken));
+            }
+        }
     }
 }

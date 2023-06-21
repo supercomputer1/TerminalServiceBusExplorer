@@ -1,12 +1,9 @@
+using TerminalServiceBusExplorer.Terminal;
+
 namespace TerminalServiceBusExplorer.ServiceBus;
 
 public class MessageBus
 {
-    public MessageBus(List<Topic> topics)
-    {
-        Topics = topics;
-    }
-
     public List<Topic> Topics { get; set; }
 
     public void ShowTopics()

@@ -3,7 +3,7 @@ namespace TerminalServiceBusExplorer.Terminal;
 public static class Input
 {
 
-    private static readonly List<string> validInputs = new List<string>() { "Y", "N", "y", "n" };
+    private static readonly List<string> validInputs = new() { "Y", "N", "y", "n" };
 
     public static int GetChoice(string text)
     {

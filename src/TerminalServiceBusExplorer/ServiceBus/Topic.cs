@@ -10,7 +10,7 @@ public class Topic
 
     public int Identifier { get; set; }
     public string Name { get; set; }
-    public List<Subscription> Subscriptions = new List<Subscription>();
+    public List<Subscription> Subscriptions = new();
 
     public void AddSubscriptions(IEnumerable<Subscription> subscriptions)
     {

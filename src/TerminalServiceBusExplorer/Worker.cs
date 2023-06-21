@@ -25,24 +25,24 @@ namespace TerminalServiceBusExplorer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var messageBus = await messageBusService.GetMessageBus();
+            var messageBus = await messageBusService.GetMessageBus(stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 messageBus.ShowTopics();
 
-                var whichTopic = Terminal.Input.GetChoice("Select a topic:");
+                var whichTopic = Input.GetChoice("Select a topic:");
                 var topic = messageBus.GetTopic(whichTopic);
 
                 messageBus.PrintTopic(whichTopic);
 
-                var whichSubscription = Terminal.Input.GetChoice("Select a subscription:");
+                var whichSubscription = Input.GetChoice("Select a subscription:");
 
                 var messageQueue = new MessageQueue(topic.Subscriptions[whichSubscription].Messages);
 
                 while (messageQueue.HasMessagesToShow)
                 {
-                    if (!Terminal.Input.Continue("Continue? y/n")) break;
+                    if (!Input.Continue("Continue? y/n")) break;
                     messageQueue.ShowFirst();
                 }
 

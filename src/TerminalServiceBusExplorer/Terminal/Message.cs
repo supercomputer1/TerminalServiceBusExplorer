@@ -30,4 +30,9 @@ public class Message
 
         Console.WriteLine(JsonSerializer.Serialize(test, new JsonSerializerOptions() { WriteIndented = true }));
     }
+
+    public void PrintWithoutBody()
+    {
+        Console.WriteLine($"Id: {Id}, EnqueuedTime: {EnqueuedTime}, ContentType: {ContentType}.");
+    }
 }
